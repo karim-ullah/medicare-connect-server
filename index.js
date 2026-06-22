@@ -74,13 +74,37 @@ async function run() {
       }
     });
 
+    //for doctor data by doctorId - use to submit schedule with details--
+    
+    app.get('/api/my/doctor', async(req,res)=>{
+        const query = {}
+        if(req.query.doctorId){
+            query.doctorId = req.query.doctorId
+        }
+        const result = await doctorCollections.findOne(query)
+        res.send(result)
+    })
 
+
+    // adding schedule from schedule dashboard page
 
     app.post("/api/doctor-schedule", async (req, res) => {
       const data = req.body;
       const result = await doctorScheduleCollections.insertOne(data)
       res.send(result)
     });
+
+
+
+    app.get('/api/doctor-schedule', async(req,res)=>{
+        const query = {}
+        if(req.query.doctorId){
+            query.doctorId = req.query.doctorId
+        }
+
+        const result = await doctorScheduleCollections.find(query).toArray()
+        res.send(result)
+    })
 
     // await client.db("admin").command({ ping: 1 });
     console.log(
