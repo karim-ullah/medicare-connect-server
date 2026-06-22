@@ -27,7 +27,15 @@ async function run() {
     const doctorCollections = db.collection("doctors");
     const doctorScheduleCollections = db.collection("doctorSchedule");
 
-    // doctors profile or doctorCollections
+
+    //getting all doctors added schedules for find-doctors page--
+
+    app.get('/api/all-schedules', async(req,res)=>{
+      const result = await doctorScheduleCollections.find().toArray()
+      res.send(result)
+    })
+
+    // doctors profile or doctorCollections create or update
 
     app.patch("/api/doctors/:doctorId", async (req, res) => {
       try {
@@ -105,6 +113,13 @@ async function run() {
         const result = await doctorScheduleCollections.find(query).toArray()
         res.send(result)
     })
+
+
+
+
+
+
+
 
     // await client.db("admin").command({ ping: 1 });
     console.log(
