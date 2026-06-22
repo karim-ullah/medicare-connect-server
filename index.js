@@ -1,6 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 dotenv.config();
 const cors = require("cors");
 const app = express();
@@ -34,7 +34,16 @@ async function run() {
       const result = await doctorScheduleCollections.find().toArray()
       res.send(result)
     })
+    // get single schedule for details page
+    app.get('/api/single-schedule', async(req,res)=>{
+      
+      const scheduleId = req.query.scheduleId
 
+      const result = await doctorScheduleCollections.findOne({
+        _id: new ObjectId(scheduleId)
+      })
+      res.send(result)
+    })
     // doctors profile or doctorCollections create or update
 
     app.patch("/api/doctors/:doctorId", async (req, res) => {
