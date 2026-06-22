@@ -75,7 +75,7 @@ async function run() {
     });
 
     //for doctor data by doctorId - use to submit schedule with details--
-    
+
     app.get('/api/my/doctor', async(req,res)=>{
         const query = {}
         if(req.query.doctorId){
@@ -95,7 +95,7 @@ async function run() {
     });
 
 
-
+    //getting all schedule of logged in doctor-- in schedule page
     app.get('/api/doctor-schedule', async(req,res)=>{
         const query = {}
         if(req.query.doctorId){
