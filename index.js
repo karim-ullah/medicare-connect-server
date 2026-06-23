@@ -26,6 +26,7 @@ async function run() {
 
     const doctorCollections = db.collection("doctors");
     const doctorScheduleCollections = db.collection("doctorSchedule");
+    const appointmentCollections = db.collection('appointments')
 
 
     //getting all doctors added schedules for find-doctors page--
@@ -121,6 +122,16 @@ async function run() {
 
         const result = await doctorScheduleCollections.find(query).toArray()
         res.send(result)
+    })
+
+
+
+    // this is for patient post api
+
+    app.post('/api/add-appointment', async(req,res)=>{
+      const data = req.body
+      const result = await appointmentCollections.insertOne(data)
+      res.send(result)
     })
 
 
