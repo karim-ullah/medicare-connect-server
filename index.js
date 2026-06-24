@@ -112,6 +112,26 @@ async function run() {
       res.send(result)
     });
 
+    //update schedule from schedule dashboard page
+    app.patch('/api/update-schedule', async(req,res)=>{
+      const scheduleId = req.query.scheduleId
+      const data = req.body
+
+      const filter = {
+        _id: new ObjectId(scheduleId)
+      }
+
+      const updateDoc = {
+        $set: data,
+      }
+
+      const result = await doctorScheduleCollections.updateOne(
+        filter,
+        updateDoc
+      )
+
+      res.send(result)
+    })
 
     //getting all schedule of logged in doctor-- in schedule page
     app.get('/api/doctor-schedule', async(req,res)=>{
@@ -124,6 +144,31 @@ async function run() {
         res.send(result)
     })
 
+    //getting all appointment request of logged in doctor user
+    app.get('/api/appointment-requests', async(req,res)=>{
+      const query = {}
+
+      if(req.query.doctorId){
+        query.doctorId = req.query.doctorId
+        const result = await appointmentCollections.find(query).toArray()
+        res.send(result)
+      }
+    })
+
+    //appointment status update
+    app.patch('/api/appointment-status', async(req,res)=>{
+      const id = req.query.appointmentId
+
+      const result = await appointmentCollections.updateOne(
+        {_id: new ObjectId(id)},
+        {
+          $set: req.body
+        }
+      )
+
+      res.send(result)
+    })
+
 
 
     // this is for patient post api
@@ -133,6 +178,8 @@ async function run() {
       const result = await appointmentCollections.insertOne(data)
       res.send(result)
     })
+
+
 
 
 
