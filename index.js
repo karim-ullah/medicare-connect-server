@@ -70,6 +70,17 @@ async function run() {
       })
       res.send(result)
     })
+
+    // delete schedule by id---
+    app.delete('/api/delete-schedule', async(req,res)=>{
+      const query = {}
+      if(req.query.scheduleId){
+        req.query= req.query.scheduleId
+      }
+
+      const result = await doctorScheduleCollections.deleteOne(query)
+      res.send(result)
+    })
     // doctors profile or doctorCollections create or update
 
     app.patch("/api/doctors/:doctorId", async (req, res) => {
