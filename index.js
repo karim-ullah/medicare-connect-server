@@ -40,6 +40,15 @@ async function run() {
       const result = await prescriptionCollections.insertOne(data)
       res.send(result)
     })
+
+    app.get('/api/get-doctor-prescriptions', async(req,res)=>{
+      const query = {}
+        if(req.query.doctorId){
+            query.doctorId = req.query.doctorId
+        }
+      const result = await prescriptionCollections.find(query).toArray()
+      res.send(result)
+    })
     // ----- prescription area closed -----
 
 
