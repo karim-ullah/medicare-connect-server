@@ -28,6 +28,22 @@ async function run() {
     const doctorScheduleCollections = db.collection("doctorSchedule");
     const appointmentCollections = db.collection('appointments')
 
+    const prescriptionCollections = db.collection('prescriptions')
+
+
+
+    // ----- prescription area started -----
+
+    app.post('/api/add-prescription', async(req,res)=>{
+      const data = req.body
+
+      const result = await prescriptionCollections.insertOne(data)
+      res.send(result)
+    })
+    // ----- prescription area closed -----
+
+
+
 
     //getting all doctors added schedules for find-doctors page--
 
