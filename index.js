@@ -49,6 +49,25 @@ async function run() {
       const result = await prescriptionCollections.find(query).toArray()
       res.send(result)
     })
+
+    app.patch('/api/update-prescription', async(req,res)=>{
+      const id = req.query.prescriptionId
+      const data = req.body
+
+      const filter = {
+        _id: new ObjectId(id)
+      }
+      const updateDoc = {
+        $set: data
+      }
+
+      const result = await prescriptionCollections.updateOne(
+        filter,
+        updateDoc
+      )
+
+      res.send(result)
+    })
     // ----- prescription area closed -----
 
 
