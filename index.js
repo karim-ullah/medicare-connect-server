@@ -30,7 +30,17 @@ async function run() {
 
     const prescriptionCollections = db.collection('prescriptions')
 
+    const users = db.collection('user')
 
+
+
+    // ---admin area started ---
+    app.get('/api/get-users', async(req,res)=>{
+      
+      const result = await users.find().toArray()
+      res.send(result)
+    })
+    // ---admin area closed ---
 
     // ----- prescription area started -----
 
