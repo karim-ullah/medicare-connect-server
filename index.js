@@ -26,149 +26,133 @@ async function run() {
 
     const doctorCollections = db.collection("doctors");
     const doctorScheduleCollections = db.collection("doctorSchedule");
-    const appointmentCollections = db.collection('appointments')
+    const appointmentCollections = db.collection("appointments");
 
-    const prescriptionCollections = db.collection('prescriptions')
+    const prescriptionCollections = db.collection("prescriptions");
 
-    const users = db.collection('user')
-
-
+    const users = db.collection("user");
 
     // ---admin area started ---
-    app.get('/api/get-users', async(req,res)=>{
+    app.get("/api/get-users", async (req, res) => {
+      const result = await users.find().toArray();
+      res.send(result);
+    });
 
-      const result = await users.find().toArray()
-      res.send(result)
-    })
-
-    app.get('/api/get-doctors', async(req,res)=>{
-      
-
-      const result = await doctorCollections.find().toArray()
-      res.send(result)
-    })
-
+    app.get("/api/get-doctors", async (req, res) => {
+      const result = await doctorCollections.find().toArray();
+      res.send(result);
+    });
 
     //change status both in doctor and schedule collection by admin manage doctor--
-    
-    app.patch('/api/update-status-doctor',async(req,res)=>{
-      const doctorId = req.query.doctorId
+
+    app.patch("/api/update-status-doctor", async (req, res) => {
+      const doctorId = req.query.doctorId;
       const filter = {
-        doctorId
-      }
-      const doctorResult = await doctorCollections.updateOne(
-        filter,
-        {
-          $set: req.body
-        }
-      )
+        doctorId,
+      };
+      const doctorResult = await doctorCollections.updateOne(filter, {
+        $set: req.body,
+      });
 
       const scheduleResult = await doctorScheduleCollections.updateMany(
         filter,
         {
-          $set: req.body
-        }
-      )
+          $set: req.body,
+        },
+      );
 
-      res.send(doctorResult, scheduleResult)
-    })
+      res.send(doctorResult, scheduleResult);
+    });
 
-
-    
     // ---admin area closed ---
 
     // ----- prescription area started -----
 
-    app.post('/api/add-prescription', async(req,res)=>{
-      const data = req.body
+    app.post("/api/add-prescription", async (req, res) => {
+      const data = req.body;
 
-      const result = await prescriptionCollections.insertOne(data)
-      res.send(result)
-    })
+      const result = await prescriptionCollections.insertOne(data);
+      res.send(result);
+    });
 
-    app.get('/api/get-doctor-prescriptions', async(req,res)=>{
-      const query = {}
-        if(req.query.doctorId){
-            query.doctorId = req.query.doctorId
-        }
-      const result = await prescriptionCollections.find(query).toArray()
-      res.send(result)
-    })
+    app.get("/api/get-doctor-prescriptions", async (req, res) => {
+      const query = {};
+      if (req.query.doctorId) {
+        query.doctorId = req.query.doctorId;
+      }
+      const result = await prescriptionCollections.find(query).toArray();
+      res.send(result);
+    });
 
-    app.patch('/api/update-prescription', async(req,res)=>{
-      const id = req.query.prescriptionId
-      const data = req.body
+    app.patch("/api/update-prescription", async (req, res) => {
+      const id = req.query.prescriptionId;
+      const data = req.body;
 
       const filter = {
-        _id: new ObjectId(id)
-      }
+        _id: new ObjectId(id),
+      };
       const updateDoc = {
-        $set: data
-      }
+        $set: data,
+      };
 
-      const result = await prescriptionCollections.updateOne(
-        filter,
-        updateDoc
-      )
+      const result = await prescriptionCollections.updateOne(filter, updateDoc);
 
-      res.send(result)
-    })
+      res.send(result);
+    });
 
-    app.delete('/api/delete-prescription',async(req,res)=>{
-     const id = req.query.prescriptionId
+    app.delete("/api/delete-prescription", async (req, res) => {
+      const id = req.query.prescriptionId;
 
-     filter = {
-      _id: new ObjectId(id)
-     }
+      filter = {
+        _id: new ObjectId(id),
+      };
 
-      const result = await prescriptionCollections.deleteOne(filter)
-      res.send(result)
-    })
+      const result = await prescriptionCollections.deleteOne(filter);
+      res.send(result);
+    });
     // ----- prescription area closed -----
 
-
     // ---Patient appointment area started ----
-    app.get('/api/my-appointment-requests', async(req,res)=>{
-      const id = req.query.patientId
+    app.get("/api/my-appointment-requests", async (req, res) => {
+      const id = req.query.patientId;
 
       const filter = {
-        patientId: id
-      }
+        patientId: id,
+      };
 
-      const result = await appointmentCollections.find(filter).toArray()
-      res.send(result)
-    })
+      const result = await appointmentCollections.find(filter).toArray();
+      res.send(result);
+    });
     // ---Patient appointment area closed ----
-
-
 
     //getting all doctors added schedules for find-doctors page--
 
-    app.get('/api/all-schedules', async(req,res)=>{
-      const result = await doctorScheduleCollections.find().toArray()
-      res.send(result)
-    })
+    app.get("/api/all-schedules", async (req, res) => {
+      const result = await doctorScheduleCollections.find().toArray();
+      res.send(result);
+    });
     // get single schedule for details page
-    app.get('/api/single-schedule', async(req,res)=>{
-      
-      const scheduleId = req.query.scheduleId
+    app.get("/api/single-schedule", async (req, res) => {
+      const scheduleId = req.query.scheduleId;
 
       const result = await doctorScheduleCollections.findOne({
-        _id: new ObjectId(scheduleId)
-      })
-      res.send(result)
-    })
+        _id: new ObjectId(scheduleId),
+      });
+      res.send(result);
+    });
 
     // delete schedule by id---
-    app.delete('/api/delete-schedule', async(req,res)=>{
-      const query = {}
-      if(req.query.scheduleId){
-        req.query= req.query.scheduleId
-      }
+    app.delete("/api/delete-schedule", async (req, res) => {
 
-      const result = await doctorScheduleCollections.deleteOne(query)
-      res.send(result)
-    })
+      const id = req.query.scheduleId
+      const filter = {
+        _id: new ObjectId(id)
+      }
+      
+
+      const result = await doctorScheduleCollections.deleteOne(filter);
+      res.send(result);
+    });
     // doctors profile or doctorCollections create or update
 
     app.patch("/api/doctors/:doctorId", async (req, res) => {
@@ -187,7 +171,7 @@ async function run() {
           },
           $setOnInsert: {
             createdAt: new Date(),
-            status: 'Pending'
+            status: "Pending",
           },
         };
 
@@ -224,93 +208,83 @@ async function run() {
             query.doctorId = req.query.doctorId
         }
         const result = await doctorCollections.findOne(query)
-        res.send(result)
+        res.json(result)
     })
 
+   
 
     // adding schedule from schedule dashboard page
 
     app.post("/api/doctor-schedule", async (req, res) => {
       const data = req.body;
-      const result = await doctorScheduleCollections.insertOne(data)
-      res.send(result)
+      const result = await doctorScheduleCollections.insertOne(data);
+      res.send(result);
     });
 
     //update schedule from schedule dashboard page
-    app.patch('/api/update-schedule', async(req,res)=>{
-      const scheduleId = req.query.scheduleId
-      const data = req.body
+    app.patch("/api/update-schedule", async (req, res) => {
+      const scheduleId = req.query.scheduleId;
+      const data = req.body;
 
       const filter = {
-        _id: new ObjectId(scheduleId)
-      }
+        _id: new ObjectId(scheduleId),
+      };
 
       const updateDoc = {
         $set: data,
-      }
+      };
 
       const result = await doctorScheduleCollections.updateOne(
         filter,
-        updateDoc
-      )
+        updateDoc,
+      );
 
-      res.send(result)
-    })
+      res.send(result);
+    });
 
     //getting all schedule of logged in doctor-- in schedule page
-    app.get('/api/doctor-schedule', async(req,res)=>{
-        const query = {}
-        if(req.query.doctorId){
-            query.doctorId = req.query.doctorId
-        }
+    app.get("/api/doctor-schedule", async (req, res) => {
+      const query = {};
+      if (req.query.doctorId) {
+        query.doctorId = req.query.doctorId;
+      }
 
-        const result = await doctorScheduleCollections.find(query).toArray()
-        res.send(result)
-    })
+      const result = await doctorScheduleCollections.find(query).toArray();
+      res.send(result);
+    });
 
     //getting all appointment request of logged in doctor user
-    app.get('/api/appointment-requests', async(req,res)=>{
-      const query = {}
+    app.get("/api/appointment-requests", async (req, res) => {
+      const query = {};
 
-      if(req.query.doctorId){
-        query.doctorId = req.query.doctorId
-        const result = await appointmentCollections.find(query).toArray()
-        res.send(result)
+      if (req.query.doctorId) {
+        query.doctorId = req.query.doctorId;
+        const result = await appointmentCollections.find(query).toArray();
+        res.send(result);
       }
-    })
+    });
 
     //appointment status update
-    app.patch('/api/appointment-status', async(req,res)=>{
-      const id = req.query.appointmentId
+    app.patch("/api/appointment-status", async (req, res) => {
+      const id = req.query.appointmentId;
 
       const result = await appointmentCollections.updateOne(
-        {_id: new ObjectId(id)},
+        { _id: new ObjectId(id) },
         {
-          $set: req.body
-        }
-      )
+          $set: req.body,
+        },
+      );
 
-      res.send(result)
-    })
-
-
+      res.send(result);
+    });
 
     // this is for patient post api
 
-    app.post('/api/add-appointment', async(req,res)=>{
-      const data = req.body
-      const result = await appointmentCollections.insertOne(data)
-      res.send(result)
-    })
-
-
-
-
-
-
-
-
-
+    app.post("/api/add-appointment", async (req, res) => {
+      const data = req.body;
+      const result = await appointmentCollections.insertOne(data);
+      res.send(result);
+    });
 
     // await client.db("admin").command({ ping: 1 });
     console.log(
