@@ -64,6 +64,22 @@ async function run() {
       res.send(doctorResult, scheduleResult);
     });
 
+
+    // suspend user by admin---
+    app.patch('/api/suspend-user', async(req,res)=>{
+      const id = req.query.userId
+      const filter = {
+        _id: new ObjectId(id)
+      }
+      const result = await users.updateOne(
+        filter,
+        {
+          $set: req.body
+        }
+      )
+      res.send(result)
+    })
+
     // ---admin area closed ---
 
     // ----- prescription area started -----
