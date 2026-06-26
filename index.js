@@ -68,6 +68,17 @@ async function run() {
 
       res.send(result)
     })
+
+    app.delete('/api/delete-prescription',async(req,res)=>{
+     const id = req.query.prescriptionId
+
+     filter = {
+      _id: new ObjectId(id)
+     }
+
+      const result = await prescriptionCollections.deleteOne(filter)
+      res.send(result)
+    })
     // ----- prescription area closed -----
 
 
