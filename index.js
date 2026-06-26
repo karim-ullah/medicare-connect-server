@@ -82,6 +82,19 @@ async function run() {
     // ----- prescription area closed -----
 
 
+    // ---Patient appointment area started ----
+    app.get('/api/my-appointment-requests', async(req,res)=>{
+      const id = req.query.patientId
+
+      const filter = {
+        patientId: id
+      }
+
+      const result = await appointmentCollections.find(filter).toArray()
+      res.send(result)
+    })
+    // ---Patient appointment area closed ----
+
 
 
     //getting all doctors added schedules for find-doctors page--
