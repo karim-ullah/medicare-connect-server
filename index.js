@@ -36,10 +36,45 @@ async function run() {
 
     // ---admin area started ---
     app.get('/api/get-users', async(req,res)=>{
-      
+
       const result = await users.find().toArray()
       res.send(result)
     })
+
+    app.get('/api/get-doctors', async(req,res)=>{
+      
+
+      const result = await doctorCollections.find().toArray()
+      res.send(result)
+    })
+
+
+    //change status both in doctor and schedule collection by admin manage doctor--
+    
+    app.patch('/api/update-status-doctor',async(req,res)=>{
+      const doctorId = req.query.doctorId
+      const filter = {
+        doctorId
+      }
+      const doctorResult = await doctorCollections.updateOne(
+        filter,
+        {
+          $set: req.body
+        }
+      )
+
+      const scheduleResult = await doctorScheduleCollections.updateMany(
+        filter,
+        {
+          $set: req.body
+        }
+      )
+
+      res.send(doctorResult, scheduleResult)
+    })
+
+
+    
     // ---admin area closed ---
 
     // ----- prescription area started -----
