@@ -212,8 +212,10 @@ async function run() {
     //getting search and filter doctors added schedules for find-doctors page--
 
     app.get("/api/schedules", async (req, res) => {
-      const search = req.query.search
-      const specialization = req.query.specialization
+      const search = req.query.search;
+      const specialization = req.query.specialization;
+      const sortBy = req.query.sortBy;
+
       const query = {};
 
       if (search) {
@@ -227,8 +229,38 @@ async function run() {
         query.specialization = specialization;
       }
 
+      let sort = {};
 
-      const result = await doctorScheduleCollections.find(query).toArray();
+      switch (sortBy) {
+        case "feeAsc":
+          sort = { fee: 1 };
+          break;
+
+        case "feeDesc":
+          sort = { fee: -1 };
+          break;
+
+        case "experienceAsc":
+          sort = { experience: 1 };
+          break;
+
+        case "experienceDesc":
+          sort = { experience: -1 };
+          break;
+
+        case "ratingAsc":
+          sort = { rating: 1 };
+          break;
+
+        case "ratingDesc":
+          sort = { rating: -1 };
+          break;
+
+        default:
+          sort = {};
+      }
+
+      const result = await doctorScheduleCollections.find(query).sort(sort).toArray();
 
       res.json(result);
     });
