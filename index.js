@@ -108,6 +108,19 @@ async function run() {
       res.send(result);
     });
 
+    // all appointment for admin--
+    app.get("/api/all-appointments", async (req, res) => {
+      const result = await appointmentCollections.find().toArray();
+      res.json(result);
+    });
+
+    // all payment for admin--
+
+    app.get("/api/all-payment", async (req, res) => {
+      const result = await paymentCollections.find().toArray();
+      res.json(result);
+    });
+
     // ---admin area closed ---
 
     // ----- prescription area started -----
@@ -157,6 +170,7 @@ async function run() {
     // ----- prescription area closed -----
 
     // ---Patient appointment area started ----
+
     app.get("/api/my-appointment-requests", async (req, res) => {
       const id = req.query.patientId;
 
@@ -237,6 +251,30 @@ async function run() {
       const result = await paymentCollections.find(filter).toArray();
       res.json(result);
     });
+
+    // total payment--
+
+    app.get("/api/get-total-payment", async (req, res) => {
+      const result = await paymentCollections
+        .aggregate([
+          {
+            $match: {
+              patientId: req.query.patientId,
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalFee: {  $sum: { $toDouble: "$price" } },
+            },
+          },
+        ])
+        .toArray();
+
+      const totalFee = result.length ? result[0].totalFee : 0;
+
+      res.json(totalFee)
+    });
     // ---Patient appointment area closed ----
 
     //getting search and filter doctors added schedules for find-doctors page--
@@ -308,7 +346,6 @@ async function run() {
       res.json({ schedules: result, page: Number(page), totalPage });
     });
 
-  
     // get single schedule for details page
     app.get("/api/single-schedule", async (req, res) => {
       const scheduleId = req.query.scheduleId;
