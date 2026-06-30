@@ -1,8 +1,12 @@
+const dns = require("node:dns");
+dns.setServers(["1.1.1.1", "1.0.0.1"]);
+
 const express = require("express");
 const dotenv = require("dotenv");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 dotenv.config();
 const cors = require("cors");
+const { createRemoteJWKSet, jwtVerify } = require("jose-cjs");
 const app = express();
 const port = process.env.PORT;
 
@@ -18,6 +22,32 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
+
+const JWKS = createRemoteJWKSet(
+  new URL(`${process.env.CLIENT_URL}/api/auth/jwks`),
+);
+
+const verifyToken = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer")) {
+    return res.status(401).json({ msg: "Unauthorized" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ msg: "Unauthorized" });
+  }
+
+  try {
+    const { payload } = await jwtVerify(token, JWKS);
+    console.log(payload);
+    next();
+  } catch (error) {
+    console.log(error);
+    return res.status(401).json({ msg: "Unauthorized" });
+  }
+};
 
 async function run() {
   try {
@@ -216,6 +246,11 @@ async function run() {
       const specialization = req.query.specialization;
       const sortBy = req.query.sortBy;
 
+      const page = req.query.page || 1;
+      const limit = req.query.limit || 10;
+
+      const skip = (Number(page) - 1) * Number(limit);
+
       const query = {};
 
       if (search) {
@@ -260,10 +295,20 @@ async function run() {
           sort = {};
       }
 
-      const result = await doctorScheduleCollections.find(query).sort(sort).toArray();
+      const result = await doctorScheduleCollections
+        .find(query)
+        .sort(sort)
+        .skip(skip)
+        .limit(Number(limit))
+        .toArray();
 
-      res.json(result);
+      const totalData = await doctorScheduleCollections.countDocuments(query);
+      const totalPage = Math.ceil(totalData / Number(limit));
+
+      res.json({ schedules: result, page: Number(page), totalPage });
     });
+
+  
     // get single schedule for details page
     app.get("/api/single-schedule", async (req, res) => {
       const scheduleId = req.query.scheduleId;
@@ -271,7 +316,7 @@ async function run() {
       const result = await doctorScheduleCollections.findOne({
         _id: new ObjectId(scheduleId),
       });
-      res.send(result);
+      res.json(result);
     });
 
     // delete schedule by id---
@@ -344,7 +389,7 @@ async function run() {
 
     // adding schedule from schedule dashboard page
 
-    app.post("/api/doctor-schedule", async (req, res) => {
+    app.post("/api/doctor-schedule", verifyToken, async (req, res) => {
       const data = req.body;
       const result = await doctorScheduleCollections.insertOne(data);
       res.send(result);
